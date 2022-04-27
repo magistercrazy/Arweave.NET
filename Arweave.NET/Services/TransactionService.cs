@@ -117,8 +117,6 @@ namespace Arweave.NET.Services
                 return null;
         }
 
-        public async Task<>
-
         #region Helper Methods
         private bool IsValidFieldName(string fieldName)
         {
