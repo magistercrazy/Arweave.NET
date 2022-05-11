@@ -5,10 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="jose-jwt" Version="4.0.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.17.0" />
   </ItemGroup>
 
