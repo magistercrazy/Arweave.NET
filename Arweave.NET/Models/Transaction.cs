@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Arweave.NET.Services;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +22,7 @@ namespace Arweave.NET.Models
         [JsonPropertyName("owner")]
         public string Owner { get; set; }
         [JsonPropertyName("tags")]
-        public Tag[] Tags { get; set; }
+        public List<Tag> Tags { get; set; }
         [JsonPropertyName("target")]
         public string Target { get; set; }
         [JsonPropertyName("quantity")]
@@ -56,10 +57,46 @@ namespace Arweave.NET.Models
             }
         }
 
+        public JsonWebKey GetJWK(string keyFilePath)
+        {
+            string jwksString = string.Empty;
+            using (StreamReader sr = File.OpenText(keyFilePath))
+            {
+                jwksString = sr.ReadToEnd();
+                var formattedString = "{ \"keys\":[" + jwksString + "]}";
+                var jwks = new JsonWebKeySet(formattedString);
+                if (jwks.Keys.Count > 1)
+                    throw new NotImplementedException("Key file has more then 1 key, please check");
+               return jwks.Keys[0];
+            }
+        }
+
         public Transaction(string keyFilePath):base()
         {
             LoadOwner(keyFilePath);
+            Tags = new List<Tag>();
         }
+
+        public void CreateDataTransaction(byte[] buffer)
+        {
+            Format = 2;
+            Quantity = "0";
+            Target = "";
+            Data = Utils.Base64Encode(buffer);
+            DataSize = buffer.Length.ToString();
+            DataRoot = Utils.Base64Encode(ChunkService.GenerateTransactionChunks(buffer));
+        }
+
+        public void AddTag(string name, string value)
+        {
+            var tag = new Tag
+            {
+                Name = Utils.Base64Encode(Encoding.UTF8.GetBytes(name)),
+                Value = Utils.Base64Encode(Encoding.UTF8.GetBytes(value))
+            };
+            Tags.Add(tag);
+        }
+
        
     }
     

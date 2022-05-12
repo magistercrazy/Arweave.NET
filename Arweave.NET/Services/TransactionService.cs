@@ -1,10 +1,13 @@
 ﻿using Arweave.NET.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -117,6 +120,54 @@ namespace Arweave.NET.Services
                 return null;
         }
 
+        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath)
+        {
+            try
+            {
+                var dataBuff = await Utils.ReadDataAsync(dataPath);
+
+                transaction.CreateDataTransaction(dataBuff);
+                transaction.Reward = await GetPriceAsync(null, dataBuff.LongLength);
+                transaction.LastTx = await GetAnchorAsync();
+
+
+                var dataToSign = Signature.GetSignature(transaction);
+                var calcSign = Signature.Sign(dataToSign, transaction.GetJWK("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json"));
+                transaction.Signature = Utils.Base64Encode(calcSign);
+                transaction.Id = Utils.Base64Encode(Encryption.Hash(calcSign, "SHA-256"));
+
+                var requestMessage = new HttpRequestMessage(HttpMethod.Post, "tx");
+                var json = JsonSerializer.Serialize(transaction);
+                requestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await Client.Request(requestMessage);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return new ResponseResult
+                    {
+                        Id = transaction.Id,
+                        Error = null
+                    };
+                }
+                var res = await response.Content.ReadAsStringAsync();
+                return new ResponseResult
+                {
+                    Error = new Error
+                    {
+                        Message = res,
+                        Code = response.StatusCode
+                    }
+                };
+            }
+            catch(Exception exp)
+            {
+                return new ResponseResult
+                {
+                    Error = new Error { Message = exp.Message }
+                };
+            }
+        }
+
         #region Helper Methods
         private bool IsValidFieldName(string fieldName)
         {
@@ -137,6 +188,10 @@ namespace Arweave.NET.Services
             }
             return fieldNames.Contains(fieldName);
         }
+
+        
+
+       
         #endregion
     }
 }
