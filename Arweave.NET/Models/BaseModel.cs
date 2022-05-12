@@ -11,9 +11,6 @@ namespace Arweave.NET.Models
 {
     public abstract class BaseModel
     {
-        [JsonIgnore]
-        public JsonWebKey JWK { get; set; }
-
         public override string ToString()
         {
             return JsonSerializer.Serialize(this,this.GetType(), new JsonSerializerOptions { WriteIndented = true });
