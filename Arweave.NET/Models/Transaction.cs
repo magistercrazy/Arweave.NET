@@ -13,7 +13,7 @@ namespace Arweave.NET.Models
     public class Transaction : BaseModel
     {
         [JsonPropertyName("format")]
-        public string Format { get; set; }
+        public int Format { get; set; }
         [JsonPropertyName("id")]
         public string Id { get; set; }
         [JsonPropertyName("last_tx")]
@@ -39,7 +39,7 @@ namespace Arweave.NET.Models
 
         public Transaction()
         {
-            Format = "2";
+            Format = 2;
         }
 
         public void LoadOwner(string keyFilePath)
