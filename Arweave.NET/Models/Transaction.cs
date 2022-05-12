@@ -60,7 +60,7 @@ namespace Arweave.NET.Models
             }
         }
 
-        public Transaction(string keyFilePath):base()
+        public Transaction(string keyFilePath):this()
         {
             LoadOwner(keyFilePath);
         }
@@ -72,7 +72,7 @@ namespace Arweave.NET.Models
             Target = "";
             Data = Utils.Base64Encode(buffer);
             DataSize = buffer.Length.ToString();
-            DataRoot = Utils.Base64Encode(ChunkService.GenerateTransactionChunks(buffer));
+            DataRoot = Utils.Base64Encode(ChunkOperations.GenerateTransactionChunks(buffer));
         }
 
         public void AddTag(string name, string value)

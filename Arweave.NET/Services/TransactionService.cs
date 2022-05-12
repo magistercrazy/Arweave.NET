@@ -120,7 +120,7 @@ namespace Arweave.NET.Services
                 return null;
         }
 
-        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath, bool typeFromPath = true)
+        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath, bool typeFromPath = true, string contentType = null)
         {
             try
             {
@@ -131,13 +131,16 @@ namespace Arweave.NET.Services
                 {
                     var format = Utils.GetFileFormat(dataPath);
                     if (string.IsNullOrEmpty(format))
-                        return new ResponseResult { Error = new Error { Message = "Couldn't resolve format" } };
+                        return new ResponseResult { Error = new Error { Message = "Couldn't resolve format from pre-defined set. Please set up your own content type or leave it blank" } };
                     transaction.AddTag("Content-Type", format);
+                }
+                else if(!string.IsNullOrEmpty(contentType))
+                {
+                    transaction.AddTag("Content-Type", contentType);
                 }
 
                 transaction.Reward = await GetPriceAsync(null, dataBuff.LongLength);
                 transaction.LastTx = await GetAnchorAsync();
-
 
                 var dataToSign = Signature.GetSignature(transaction);
                 var calcSign = Signature.Sign(dataToSign, transaction.JWK);
@@ -196,10 +199,6 @@ namespace Arweave.NET.Services
             }
             return fieldNames.Contains(fieldName);
         }
-
-        
-
-       
         #endregion
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Arweave.NET.Services
 {
-    public class ChunkService  
+    public class ChunkOperations  
     {
         private static readonly int MaxChunkSize = 256 * 1024;
         private static readonly int MinChunkSize = 32 * 1024;

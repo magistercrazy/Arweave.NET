@@ -43,8 +43,5 @@ namespace Arweave.NET.Models
 
             return clone.ToString();
         }
-
-        #region Helper methods
-        #endregion
     }
 }

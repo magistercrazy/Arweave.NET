@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <Version>0.5.0</Version>
+    <Description>A simple Arweave.org implementation for a .NET 5 Framework</Description>
+    <Authors>Alexander Grishin, Semyon Falshin</Authors>
   </PropertyGroup>
 
   <ItemGroup>
