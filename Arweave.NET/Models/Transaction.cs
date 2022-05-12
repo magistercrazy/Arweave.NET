@@ -43,37 +43,10 @@ namespace Arweave.NET.Models
             Format = 2;
         }
 
-        public void LoadOwner(string keyFilePath)
-        {
-            string jwksString = string.Empty;
-            using (StreamReader sr = File.OpenText(keyFilePath))
-            {
-                jwksString = sr.ReadToEnd();
-                var formattedString = "{ \"keys\":[" + jwksString + "]}";
-                var jwks = new JsonWebKeySet(formattedString);
-                if (jwks.Keys.Count > 1)
-                    throw new NotImplementedException("Key file has more then 1 key, please check");
-                Owner = jwks.Keys[0].N;
-            }
-        }
-
-        public JsonWebKey GetJWK(string keyFilePath)
-        {
-            string jwksString = string.Empty;
-            using (StreamReader sr = File.OpenText(keyFilePath))
-            {
-                jwksString = sr.ReadToEnd();
-                var formattedString = "{ \"keys\":[" + jwksString + "]}";
-                var jwks = new JsonWebKeySet(formattedString);
-                if (jwks.Keys.Count > 1)
-                    throw new NotImplementedException("Key file has more then 1 key, please check");
-               return jwks.Keys[0];
-            }
-        }
-
         public Transaction(string keyFilePath):base()
         {
-            LoadOwner(keyFilePath);
+            JWK = Utils.LoadJWK(keyFilePath);
+            Owner = JWK.N;
             Tags = new List<Tag>();
         }
 

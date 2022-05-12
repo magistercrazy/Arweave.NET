@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Arweave.NET
 {
     public class Utils
-    {
+    {     
         public static byte[] ConcatBuffers(byte[] first, byte[] second)
         {
             return first.Concat(second).ToArray();
@@ -80,8 +80,61 @@ namespace Arweave.NET
             await fstream.ReadAsync(buff.AsMemory(0, buff.Length));
             return buff;
         }
-        
 
+        public static JsonWebKey LoadJWK(string keyFilePath)
+        {            
+            using StreamReader sr = File.OpenText(keyFilePath);
+            var jwksString = sr.ReadToEnd();
+            var formattedString = "{ \"keys\":[" + jwksString + "]}";
+            var jwks = new JsonWebKeySet(formattedString);
+            if (jwks.Keys.Count > 1)
+                throw new NotImplementedException("Key file has more then 1 key, please check");
+            return jwks.Keys[0];
+        
+        }
+
+        public static string GetFileFormat(string pathToFile)
+        {
+            var arr = pathToFile.Split('.');
+            var format = arr.Last().ToLower();
+            switch (format)
+            {
+                case "png":
+                    return "image/png";
+                case "jpeg":
+                    return "image/jpeg";
+                case "gif":
+                    return "image/gif";
+                case "jpg":
+                    return "image/jpg";
+
+                case "json":
+                    return "application/json";
+                case "pdf":
+                    return "application/pdf";
+                case "xml":
+                    return "application/xml";
+                case "docs":
+                    return "application/msword";
+
+                case "mpeg":
+                    return "video/mpeg";
+                case "mp4":
+                    return "video/mp4";
+                case "avi":
+                    return "video/x-msvideo";
+
+                case "html":
+                    return "text/html";
+                case "css":
+                    return "text/css";
+                case "csv":
+                    return "text/csv";
+                case "txt":
+                    return "text/plain";
+            }
+            return "";
+        }
 
     }
 }

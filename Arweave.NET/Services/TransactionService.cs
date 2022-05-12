@@ -120,19 +120,27 @@ namespace Arweave.NET.Services
                 return null;
         }
 
-        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath)
+        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath, bool typeFromPath = true)
         {
             try
             {
                 var dataBuff = await Utils.ReadDataAsync(dataPath);
 
                 transaction.CreateDataTransaction(dataBuff);
+                if (typeFromPath)
+                {
+                    var format = Utils.GetFileFormat(dataPath);
+                    if (string.IsNullOrEmpty(format))
+                        return new ResponseResult { Error = new Error { Message = "Couldn't resolve format" } };
+                    transaction.AddTag("Content-Type", format);
+                }
+
                 transaction.Reward = await GetPriceAsync(null, dataBuff.LongLength);
                 transaction.LastTx = await GetAnchorAsync();
 
 
                 var dataToSign = Signature.GetSignature(transaction);
-                var calcSign = Signature.Sign(dataToSign, transaction.GetJWK("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json"));
+                var calcSign = Signature.Sign(dataToSign, transaction.JWK);
                 transaction.Signature = Utils.Base64Encode(calcSign);
                 transaction.Id = Utils.Base64Encode(Encryption.Hash(calcSign, "SHA-256"));
 
