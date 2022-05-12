@@ -23,7 +23,6 @@ namespace Arweave.NET.Services
 
         private static List<Chunk> ChunkData(byte[] data)
         {
-            var encription = new Encryption();
             var chunks = new List<Chunk>();
             var rest = data;
             var cursor = 0;
@@ -61,7 +60,6 @@ namespace Arweave.NET.Services
 
         private static List<LeafNode> GenerateLeaves(List<Chunk> chunks)
         {
-            var encription = new Encryption();
             var nodes = new List<LeafNode>();
             foreach (var chunk in chunks)
             {
@@ -101,15 +99,11 @@ namespace Arweave.NET.Services
 
         private static LeafNode HashBranch(LeafNode left, LeafNode right)
         {
-            //if (right == null)
-            //    return left as BranchNode;
-
-            var encription = new Encryption();
             var lHash = Encryption.Hash(left.Id, "SHA-256");
             var rHash = Encryption.Hash(right.Id, "SHA-256");
             var rangeHash = Encryption.Hash(Utils.IntToBuffer(left.MaxByteRange), "SHA-256");
-            var concatated = new List<byte>().Concat(lHash).Concat(rHash).Concat(rangeHash).ToArray();
-            var res = Encryption.Hash(concatated, "SHA-256"); 
+            var concatinated = new List<byte>().Concat(lHash).Concat(rHash).Concat(rangeHash).ToArray();
+            var res = Encryption.Hash(concatinated, "SHA-256"); 
             
             return new LeafNode() {Id = res };
         }

@@ -132,7 +132,7 @@ namespace Arweave.NET.Services
 
 
                 var dataToSign = Signature.GetSignature(transaction);
-                var calcSign = Signature.Sign(dataToSign, transaction.GetJWK("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json"));
+                var calcSign = Signature.Sign(dataToSign, transaction.JWK);
                 transaction.Signature = Utils.Base64Encode(calcSign);
                 transaction.Id = Utils.Base64Encode(Encryption.Hash(calcSign, "SHA-256"));
 

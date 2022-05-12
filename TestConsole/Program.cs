@@ -51,10 +51,10 @@ namespace TestConsole
             //var transaction = new Transaction("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
 
 
-            //var transaction = new Transaction("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
-            //transaction.AddTag("Content-Type", "jpg");
+            var transaction = new Transaction("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
+            transaction.AddTag("Content-Type", "image/jpg");
 
-            //var result = transactionService.SubmitTransaction(transaction, "C:/Users/semen/Downloads/mountains-water-tops-snow-wallpaper.jpg").Result;
+            var result = transactionService.SubmitTransaction(transaction, "C:/Users/semen/Downloads/mountains-water-tops-snow-wallpaper.jpg").Result;
             Console.ReadKey();
         }
     }

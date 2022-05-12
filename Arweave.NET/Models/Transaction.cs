@@ -37,7 +37,8 @@ namespace Arweave.NET.Models
         public string Reward { get; set; }
         [JsonPropertyName("signature")]
         public string Signature { get; set; }
-
+        [JsonIgnore]
+        public JsonWebKey JWK {get;set;}
         public Transaction()
         {
             Format = 2;
@@ -54,20 +55,7 @@ namespace Arweave.NET.Models
                 if (jwks.Keys.Count > 1)
                     throw new NotImplementedException("Key file has more then 1 key, please check");
                 Owner = jwks.Keys[0].N;
-            }
-        }
-
-        public JsonWebKey GetJWK(string keyFilePath)
-        {
-            string jwksString = string.Empty;
-            using (StreamReader sr = File.OpenText(keyFilePath))
-            {
-                jwksString = sr.ReadToEnd();
-                var formattedString = "{ \"keys\":[" + jwksString + "]}";
-                var jwks = new JsonWebKeySet(formattedString);
-                if (jwks.Keys.Count > 1)
-                    throw new NotImplementedException("Key file has more then 1 key, please check");
-               return jwks.Keys[0];
+                JWK = jwks.Keys[0];
             }
         }
 
