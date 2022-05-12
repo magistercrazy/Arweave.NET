@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Arweave.NET.Services;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +22,7 @@ namespace Arweave.NET.Models
         [JsonPropertyName("owner")]
         public string Owner { get; set; }
         [JsonPropertyName("tags")]
-        public Tag[] Tags { get; set; }
+        public List<Tag> Tags { get; set; }
         [JsonPropertyName("target")]
         public string Target { get; set; }
         [JsonPropertyName("quantity")]
@@ -73,6 +74,27 @@ namespace Arweave.NET.Models
         public Transaction(string keyFilePath):base()
         {
             LoadOwner(keyFilePath);
+            Tags = new List<Tag>();
+        }
+
+        public void CreateDataTransaction(byte[] buffer)
+        {
+            Format = 2;
+            Quantity = "0";
+            Target = "";
+            Data = Utils.Base64Encode(buffer);
+            DataSize = buffer.Length.ToString();
+            DataRoot = Utils.Base64Encode(ChunkService.GenerateTransactionChunks(buffer));
+        }
+
+        public void AddTag(string name, string value)
+        {
+            var tag = new Tag
+            {
+                Name = Utils.Base64Encode(Encoding.UTF8.GetBytes(name)),
+                Value = Utils.Base64Encode(Encoding.UTF8.GetBytes(value))
+            };
+            Tags.Add(tag);
         }
 
        

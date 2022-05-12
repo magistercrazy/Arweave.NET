@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Arweave.NET.Services
 {
-    public class EncryptionService
+    public class Encryption
     {
-        public byte[] Hash(byte[] data, string alg)
+        public static byte[] Hash(byte[] data, string alg)
         {
             var algorithm = HashAlgorithm.Create(alg);
             var hashByteArray = algorithm.ComputeHash(data);

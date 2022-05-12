@@ -120,45 +120,52 @@ namespace Arweave.NET.Services
                 return null;
         }
 
-        public async Task<string> SubmitTransaction(string dataPath, Tag[] tags)
+        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath)
         {
-            var chunk = new ChunkService();
-            var encrypt = new EncryptionService();
-            var utils = new Utils();
-            var signature = new Signature();
-            var transaction = new Transaction("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
-            var archor = await GetAnchorAsync();
-            var reward = string.Empty;
-            var buff = Array.Empty<byte>();
-            using (FileStream fstream = File.OpenRead(dataPath))
+            try
             {
-                buff = new byte[fstream.Length];
-                reward = await GetPriceAsync(null, buff.LongLength);
-                await fstream.ReadAsync(buff.AsMemory(0, buff.Length));
+                var dataBuff = await Utils.ReadDataAsync(dataPath);
 
+                transaction.CreateDataTransaction(dataBuff);
+                transaction.Reward = await GetPriceAsync(null, dataBuff.LongLength);
+                transaction.LastTx = await GetAnchorAsync();
+
+
+                var dataToSign = Signature.GetSignature(transaction);
+                var calcSign = Signature.Sign(dataToSign, transaction.GetJWK("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json"));
+                transaction.Signature = Utils.Base64Encode(calcSign);
+                transaction.Id = Utils.Base64Encode(Encryption.Hash(calcSign, "SHA-256"));
+
+                var requestMessage = new HttpRequestMessage(HttpMethod.Post, "tx");
+                var json = JsonSerializer.Serialize(transaction);
+                requestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await Client.Request(requestMessage);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return new ResponseResult
+                    {
+                        Id = transaction.Id,
+                        Error = null
+                    };
+                }
+                var res = await response.Content.ReadAsStringAsync();
+                return new ResponseResult
+                {
+                    Error = new Error
+                    {
+                        Message = res,
+                        Code = response.StatusCode
+                    }
+                };
             }
-            var dataRoot = chunk.GenerateTransactionChunks(buff);
-            
-            transaction.Quantity = "0";
-            transaction.Target = "";
-            transaction.Tags = ConvertTags(tags, utils);
-            transaction.Data = utils.Base64Encode(buff);
-            transaction.DataSize =buff.Length.ToString();
-            transaction.Reward = reward;
-            transaction.LastTx = archor;
-            transaction.DataRoot = utils.Base64Encode(dataRoot);
-
-            var dataToSign = signature.GetSignature(transaction);
-            var calcSign = signature.Sign(dataToSign, transaction.GetJWK("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json"));
-            transaction.Signature = utils.Base64Encode(calcSign);
-            transaction.Id = utils.Base64Encode(encrypt.Hash(calcSign, "SHA-256"));
-
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "tx");
-            var json = JsonSerializer.Serialize(transaction);
-            requestMessage.Content = new StringContent(json, Encoding.UTF8,"application/json");
-            var response = await Client.Request(requestMessage);
-            var res = await response.Content.ReadAsStringAsync();
-            return res;
+            catch(Exception exp)
+            {
+                return new ResponseResult
+                {
+                    Error = new Error { Message = exp.Message }
+                };
+            }
         }
 
         #region Helper Methods
@@ -182,19 +189,7 @@ namespace Arweave.NET.Services
             return fieldNames.Contains(fieldName);
         }
 
-        private Tag[] ConvertTags(Tag[] tags, Utils utils)
-        {
-            var tagArr = new Tag[tags.Length];
-            for (int i = 0; i < tags.Length; i++)
-            {
-                tagArr[i] = new Tag
-                {
-                    Name = utils.Base64Encode(Encoding.UTF8.GetBytes(tags[i].Name)),
-                    Value = utils.Base64Encode(Encoding.UTF8.GetBytes(tags[i].Value))
-                };
-            }
-            return tagArr;
-        }
+        
 
        
         #endregion

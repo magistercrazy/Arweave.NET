@@ -9,11 +9,10 @@ namespace Arweave.NET.Services
 {
     public class ChunkService  
     {
-        public int MaxChunkSize = 256 * 1024;
-        public int MinChunkSize = 32 * 1024;
-        private readonly Utils _utils = new();
+        private static readonly int MaxChunkSize = 256 * 1024;
+        private static readonly int MinChunkSize = 32 * 1024;
 
-        public byte[] GenerateTransactionChunks(byte[] data)
+        public static byte[] GenerateTransactionChunks(byte[] data)
         {
             var chunks = ChunkData(data);
             var leaves = GenerateLeaves(chunks);
@@ -22,9 +21,9 @@ namespace Arweave.NET.Services
         }
 
 
-        public List<Chunk> ChunkData(byte[] data)
+        private static List<Chunk> ChunkData(byte[] data)
         {
-            var encription = new EncryptionService();
+            var encription = new Encryption();
             var chunks = new List<Chunk>();
             var rest = data;
             var cursor = 0;
@@ -44,14 +43,14 @@ namespace Arweave.NET.Services
                 cursor += chunk.Length;
                 chunks.Add(new Chunk
                 {
-                    DataHash = encription.Hash(chunk, "SHA-256"),
+                    DataHash = Encryption.Hash(chunk, "SHA-256"),
                     MinByteRange = cursor - chunk.Length,
                     MaxByteRange = cursor
                 });
             }
             chunks.Add(new Chunk
             {
-                DataHash = encription.Hash(rest, "SHA-256"),
+                DataHash = Encryption.Hash(rest, "SHA-256"),
                 MinByteRange = cursor,
                 MaxByteRange = cursor + rest.Length
             });
@@ -60,18 +59,18 @@ namespace Arweave.NET.Services
 
         }
 
-        public List<LeafNode> GenerateLeaves(List<Chunk> chunks)
+        private static List<LeafNode> GenerateLeaves(List<Chunk> chunks)
         {
-            var encription = new EncryptionService();
+            var encription = new Encryption();
             var nodes = new List<LeafNode>();
             foreach (var chunk in chunks)
             {
-                var leavesHash = encription.Hash(chunk.DataHash, "SHA-256");
-                var rangeHash = encription.Hash(_utils.IntToBuffer(chunk.MaxByteRange), "SHA-256");
+                var leavesHash = Encryption.Hash(chunk.DataHash, "SHA-256");
+                var rangeHash = Encryption.Hash(Utils.IntToBuffer(chunk.MaxByteRange), "SHA-256");
                 var concatated = leavesHash.Concat(rangeHash).ToArray();
                 nodes.Add(new LeafNode
                 {
-                    Id = encription.Hash(concatated, "SHA-256"),
+                    Id = Encryption.Hash(concatated, "SHA-256"),
                     DataHash = chunk.DataHash,
                     MinByteRange = chunk.MinByteRange,
                     MaxByteRange = chunk.MaxByteRange
@@ -80,7 +79,7 @@ namespace Arweave.NET.Services
             return nodes;
         }
 
-        public MerkelNode BuildLayers(List<LeafNode> nodes, int level = 0)
+        private static MerkelNode BuildLayers(List<LeafNode> nodes, int level = 0)
         {
             if (nodes.Count < 2)
             {
@@ -100,17 +99,17 @@ namespace Arweave.NET.Services
             return BuildLayers(nextLayer, level + 1);
         }
 
-        public LeafNode HashBranch(LeafNode left, LeafNode right)
+        private static LeafNode HashBranch(LeafNode left, LeafNode right)
         {
             //if (right == null)
             //    return left as BranchNode;
 
-            var encription = new EncryptionService();
-            var lHash = encription.Hash(left.Id, "SHA-256");
-            var rHash = encription.Hash(right.Id, "SHA-256");
-            var rangeHash = encription.Hash(_utils.IntToBuffer(left.MaxByteRange), "SHA-256");
+            var encription = new Encryption();
+            var lHash = Encryption.Hash(left.Id, "SHA-256");
+            var rHash = Encryption.Hash(right.Id, "SHA-256");
+            var rangeHash = Encryption.Hash(Utils.IntToBuffer(left.MaxByteRange), "SHA-256");
             var concatated = new List<byte>().Concat(lHash).Concat(rHash).Concat(rangeHash).ToArray();
-            var res = encription.Hash(concatated, "SHA-256"); 
+            var res = Encryption.Hash(concatated, "SHA-256"); 
             
             return new LeafNode() {Id = res };
         }
