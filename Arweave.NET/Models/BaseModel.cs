@@ -1,14 +1,19 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Arweave.NET.Models
 {
     public abstract class BaseModel
     {
+        [JsonIgnore]
+        public JsonWebKey JWK { get; set; }
+
         public override string ToString()
         {
             return JsonSerializer.Serialize(this,this.GetType(), new JsonSerializerOptions { WriteIndented = true });

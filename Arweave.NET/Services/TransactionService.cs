@@ -120,13 +120,21 @@ namespace Arweave.NET.Services
                 return null;
         }
 
-        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath)
+        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath, bool typeFromPath = true)
         {
             try
             {
                 var dataBuff = await Utils.ReadDataAsync(dataPath);
 
                 transaction.CreateDataTransaction(dataBuff);
+                if (typeFromPath)
+                {
+                    var format = Utils.GetFileFormat(dataPath);
+                    if (string.IsNullOrEmpty(format))
+                        return new ResponseResult { Error = new Error { Message = "Couldn't resolve format" } };
+                    transaction.AddTag("Content-Type", format);
+                }
+
                 transaction.Reward = await GetPriceAsync(null, dataBuff.LongLength);
                 transaction.LastTx = await GetAnchorAsync();
 

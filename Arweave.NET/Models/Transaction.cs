@@ -61,7 +61,8 @@ namespace Arweave.NET.Models
 
         public Transaction(string keyFilePath):base()
         {
-            LoadOwner(keyFilePath);
+            JWK = Utils.LoadJWK(keyFilePath);
+            Owner = JWK.N;
             Tags = new List<Tag>();
         }
 

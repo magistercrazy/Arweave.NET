@@ -32,7 +32,7 @@ namespace TestConsole
             //var res = transactionService.GetAsync("BNttzDav3jHVnNiV7nYbQv-GY0HQ-4XXsdkE5K9ylHQ").Result;
             // var json = JsonSerializer.Serialize(res);
             // File.WriteAllText("C:/Users/semen/Desktop/Data.json", json);
-            var res = transactionService.GetStatusAsync("o2K6_z31PaYptTyMlh_2UsBiv04XQboZeKGf48pWKDk").Result;
+            //var res = transactionService.GetStatusAsync("o2K6_z31PaYptTyMlh_2UsBiv04XQboZeKGf48pWKDk").Result;
             //var res = transactionService.GetFieldAsync("BNttzDav3jHVnNiV7nYbQv-GY0HQ-4XXsdkE5K9ylHQ", "signature").Result;
             //var res = transactionService.GetAnchorAsync().Result;
             //var res = transactionService.GetStringDataAsync("BNttzDav3jHVnNiV7nYbQv-GY0HQ-4XXsdkE5K9ylHQ").Result;
@@ -48,13 +48,13 @@ namespace TestConsole
             //    Console.WriteLine(res.Length);
             //}
 
-            //var transaction = new Transaction("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
+           
 
 
             var transaction = new Transaction("c:\\Users\\semen\\Downloads\\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
-            transaction.AddTag("Content-Type", "image/jpg");
+            //transaction.AddTag("Content-Type", "image/png");
 
-            var result = transactionService.SubmitTransaction(transaction, "C:/Users/semen/Downloads/mountains-water-tops-snow-wallpaper.jpg").Result;
+            var result = transactionService.SubmitTransaction(transaction, "C:/Users/semen/Downloads/Success.mp4").Result;
             Console.ReadKey();
         }
     }
