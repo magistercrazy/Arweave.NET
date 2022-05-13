@@ -30,9 +30,20 @@ namespace TestConsole
             //    Console.WriteLine(res.Length);
             //}
 
-            var transaction = new Transaction(@"c:\Users\jalki\Downloads\arweave-key-_qFahhVhFbibbOnnvMgfXAkCltiBLPRth2BeiB4Ta78.json");
+          
+            var dataTransaction = Transaction.CreateDataTransaction(@"C:\Users\semen\Downloads\shib.png",
+                                                                @"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
 
-            var result = transactionService.SubmitTransaction(transaction, @"C:\Users\jalki\Desktop\e70311cc5820a328f301996729d2fca5.png").Result;
+            var W2WTransaction = Transaction.W2WTransaction(@"C:\Users\semen\Downloads\shib.png",
+                                                               "10000000",
+                                                               "pEbU_SLfRzEseum0_hMB1Ie-hqvpeHWypRhZiPoioDI");
+
+            var W2WDataTransaction = Transaction.W2WTransactionWithData(@"C:\Users\semen\Downloads\shib.png",
+                                                                  @"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json",
+                                                                 "10000000",
+                                                                 "pEbU_SLfRzEseum0_hMB1Ie-hqvpeHWypRhZiPoioDI");
+
+            var result = transactionService.SubmitTransaction(dataTransaction).Result;
             if(result.Error == null)
             {
                 Console.WriteLine(result.Id);

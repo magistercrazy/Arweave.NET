@@ -2,13 +2,11 @@
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Arweave.NET
 {
-    public class Signature
+    public class SignatureOperations
     {    
         public static byte[] GetSignature(Transaction transaction)
         {

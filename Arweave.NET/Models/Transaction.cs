@@ -3,11 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Arweave.NET.Models
 {
@@ -62,18 +59,11 @@ namespace Arweave.NET.Models
 
         public Transaction(string keyFilePath):this()
         {
+            Format = 2;
+            Tags = new List<Tag>();
             LoadOwner(keyFilePath);
         }
-
-        public void CreateDataTransaction(byte[] buffer)
-        {
-            Format = 2;
-            Quantity = "0";
-            Target = "";
-            Data = Utils.Base64Encode(buffer);
-            DataSize = buffer.Length.ToString();
-            DataRoot = Utils.Base64Encode(ChunkOperations.GenerateTransactionChunks(buffer));
-        }
+      
 
         public void AddTag(string name, string value)
         {
@@ -85,7 +75,97 @@ namespace Arweave.NET.Models
             Tags.Add(tag);
         }
 
-       
+        public static Transaction CreateDataTransaction(string dataPath, string keyFilePath, string reward="", bool typeFromPath = true, string contentType = null)
+        {
+            var transaction = new Transaction(keyFilePath);
+            var transactionService = new TransactionService();
+            var dataBuff = Utils.ReadDataAsync(dataPath).Result;
+
+            if (typeFromPath)
+            {
+                var format = Utils.GetFileFormat(dataPath);
+                if (string.IsNullOrEmpty(format))
+                    throw new FormatException("Couldn't resolve format from pre-defined set. Please set up your own content type or leave it blank");
+                transaction.AddTag("Content-Type", format);
+            }
+            else if (!string.IsNullOrEmpty(contentType))
+            {
+                transaction.AddTag("Content-Type", contentType);
+            }
+
+            transaction.Quantity = "0";
+            transaction.Target = "";
+            transaction.Data = Utils.Base64Encode(dataBuff);
+            transaction.DataSize = dataBuff.Length.ToString();
+            transaction.DataRoot = Utils.Base64Encode(ChunkOperations.GenerateTransactionChunks(dataBuff));
+            transaction.Reward = string.IsNullOrEmpty(reward) ? transactionService.GetPriceAsync(null, dataBuff.LongLength).Result : reward;
+            transaction.LastTx = transactionService.GetAnchorAsync().Result;
+
+            SignData(transaction);
+            return transaction;
+        }
+
+
+        public static Transaction W2WTransaction(string keyFilePath, string quantity, string target, string reward = "")
+        {
+            var transaction = new Transaction(keyFilePath);
+            var transactionService = new TransactionService();
+            transaction.Quantity = quantity;
+            transaction.Target = target;
+            transaction.Data = "";
+            transaction.DataSize = "0";
+            transaction.DataRoot = "";
+            transaction.Reward = string.IsNullOrEmpty(reward) ? transactionService.GetPriceAsync(target).Result : reward;
+            transaction.LastTx = transactionService.GetAnchorAsync().Result;
+
+            SignData(transaction);
+            return transaction;
+        }
+
+        public static Transaction W2WTransactionWithData(string keyFilePath,
+                                                          string dataPath,
+                                                          string quantity,
+                                                          string target,
+                                                          string reward="",
+                                                          bool typeFromPath = true,
+                                                          string contentType = null)
+        {
+            var transaction = new Transaction(keyFilePath);
+            var transactionService = new TransactionService();
+            var dataBuff = Utils.ReadDataAsync(dataPath).Result;
+
+            if (typeFromPath)
+            {
+                var format = Utils.GetFileFormat(dataPath);
+                if (string.IsNullOrEmpty(format))
+                    throw new FormatException("Couldn't resolve format from pre-defined set. Please set up your own content type or leave it blank");
+                transaction.AddTag("Content-Type", format);
+            }
+            else if (!string.IsNullOrEmpty(contentType))
+            {
+                transaction.AddTag("Content-Type", contentType);
+            }
+
+            transaction.Quantity = quantity;
+            transaction.Target = target;
+            transaction.Data = Utils.Base64Encode(dataBuff);
+            transaction.DataSize = dataBuff.Length.ToString();
+            transaction.DataRoot = Utils.Base64Encode(ChunkOperations.GenerateTransactionChunks(dataBuff));
+            transaction.Reward = string.IsNullOrEmpty(reward) ? transactionService.GetPriceAsync(target, dataBuff.LongLength).Result : reward;
+            transaction.LastTx = transactionService.GetAnchorAsync().Result;
+
+            SignData(transaction);
+            return transaction;
+        }
+
+        private static void SignData(Transaction transaction)
+        {
+            var dataToSign =  SignatureOperations.GetSignature(transaction);
+            var calcSign = SignatureOperations.Sign(dataToSign, transaction.JWK);
+            transaction.Signature = Utils.Base64Encode(calcSign);
+            transaction.Id = Utils.Base64Encode(Encryption.Hash(calcSign, "SHA-256"));
+        }
+
     }
     
 

@@ -1,13 +1,9 @@
 ﻿using Arweave.NET.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -120,33 +116,10 @@ namespace Arweave.NET.Services
                 return null;
         }
 
-        public async Task<ResponseResult> SubmitTransaction(Transaction transaction, string dataPath, bool typeFromPath = true, string contentType = null)
+        public async Task<ResponseResult> SubmitTransaction(Transaction transaction)
         {
             try
-            {
-                var dataBuff = await Utils.ReadDataAsync(dataPath);
-
-                transaction.CreateDataTransaction(dataBuff);
-                if (typeFromPath)
-                {
-                    var format = Utils.GetFileFormat(dataPath);
-                    if (string.IsNullOrEmpty(format))
-                        return new ResponseResult { Error = new Error { Message = "Couldn't resolve format from pre-defined set. Please set up your own content type or leave it blank" } };
-                    transaction.AddTag("Content-Type", format);
-                }
-                else if(!string.IsNullOrEmpty(contentType))
-                {
-                    transaction.AddTag("Content-Type", contentType);
-                }
-
-                transaction.Reward = await GetPriceAsync(null, dataBuff.LongLength);
-                transaction.LastTx = await GetAnchorAsync();
-
-                var dataToSign = Signature.GetSignature(transaction);
-                var calcSign = Signature.Sign(dataToSign, transaction.JWK);
-                transaction.Signature = Utils.Base64Encode(calcSign);
-                transaction.Id = Utils.Base64Encode(Encryption.Hash(calcSign, "SHA-256"));
-
+            {              
                 var requestMessage = new HttpRequestMessage(HttpMethod.Post, "tx");
                 var json = JsonSerializer.Serialize(transaction);
                 requestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
