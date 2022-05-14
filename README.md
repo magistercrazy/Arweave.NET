@@ -16,10 +16,10 @@ Current version doesn't allow delayed uploads but can be used for the most of da
 var dataTransaction = Transaction.CreateDataTransaction(filePath, keyfilePath);
 
 //Wallet-to-wallet transfer without data
-var W2WTransaction = Transaction.W2WTransaction(keyFilePath,"10000000",toAddress);
+var W2WTransaction = Transaction.CreateW2WTransaction(keyFilePath,"10000000",toAddress);
 
 // Wallet-to-wallet tranfer with data
-var W2WDataTransaction = Transaction.W2WTransactionWithData(filePath,keyFilePath,"10000000",toAddress);
+var W2WDataTransaction = Transaction.CreateW2WTransactionWithData(filePath,keyFilePath,"10000000",toAddress);
 
 var result = transactionService.SubmitTransaction(dataTransaction).Result;
 if(result.Error == null)
