@@ -34,11 +34,11 @@ namespace TestConsole
             var dataTransaction = Transaction.CreateDataTransaction(@"C:\Users\semen\Downloads\shib.png",
                                                                 @"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
 
-            var W2WTransaction = Transaction.W2WTransaction(@"C:\Users\semen\Downloads\shib.png",
+            var W2WTransaction = Transaction.CreateW2WTransaction(@"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json",
                                                                "10000000",
                                                                "pEbU_SLfRzEseum0_hMB1Ie-hqvpeHWypRhZiPoioDI");
 
-            var W2WDataTransaction = Transaction.W2WTransactionWithData(@"C:\Users\semen\Downloads\shib.png",
+            var W2WDataTransaction = Transaction.CreateW2WTransactionWithData(@"C:\Users\semen\Downloads\shib.png",
                                                                   @"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json",
                                                                  "10000000",
                                                                  "pEbU_SLfRzEseum0_hMB1Ie-hqvpeHWypRhZiPoioDI");

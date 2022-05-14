@@ -57,6 +57,10 @@ namespace Arweave.NET.Models
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="keyFilePath">Path to the wallet private key .json file (exported from Arweave wallet)</param>
         public Transaction(string keyFilePath):this()
         {
             Format = 2;
@@ -64,7 +68,11 @@ namespace Arweave.NET.Models
             LoadOwner(keyFilePath);
         }
       
-
+        /// <summary>
+        /// Add custom tag with value
+        /// </summary>
+        /// <param name="name">Tag name</param>
+        /// <param name="value">Tag value</param>
         public void AddTag(string name, string value)
         {
             var tag = new Tag
@@ -75,6 +83,15 @@ namespace Arweave.NET.Models
             Tags.Add(tag);
         }
 
+        /// <summary>
+        /// Constructs a transaction for simple file upload
+        /// </summary>
+        /// <param name="dataPath">Path to uploading file</param>
+        /// <param name="keyFilePath">Path to the wallet private key .json file (exported from Arweave wallet)</param>
+        /// <param name="reward">Custom reward amount</param>
+        /// <param name="typeFromPath">Determine content-type by file extension</param>
+        /// <param name="contentType">Custom content type value</param>
+        /// <returns>Transaction object</returns>
         public static Transaction CreateDataTransaction(string dataPath, string keyFilePath, string reward="", bool typeFromPath = true, string contentType = null)
         {
             var transaction = new Transaction(keyFilePath);
@@ -106,7 +123,15 @@ namespace Arweave.NET.Models
         }
 
 
-        public static Transaction W2WTransaction(string keyFilePath, string quantity, string target, string reward = "")
+        /// <summary>
+        /// Constructs a transaction for simple AR token transfer
+        /// </summary>
+        /// <param name="keyFilePath">Path to the wallet private key .json file (exported from Arweave wallet)</param>
+        /// <param name="quantity">Amount of ARs to send</param>
+        /// <param name="target">Target wallet address</param>
+        /// <param name="reward">Custom reward amount</param>
+        /// <returns>Transaction object</returns>
+        public static Transaction CreateW2WTransaction(string keyFilePath, string quantity, string target, string reward = "")
         {
             var transaction = new Transaction(keyFilePath);
             var transactionService = new TransactionService();
@@ -122,8 +147,19 @@ namespace Arweave.NET.Models
             return transaction;
         }
 
-        public static Transaction W2WTransactionWithData(string keyFilePath,
-                                                          string dataPath,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// /// <param name="dataPath">Path to uploading file</param>
+        /// <param name="keyFilePath">Path to the wallet private key .json file (exported from Arweave wallet)</param>
+        /// <param name="quantity">Amount of ARs to send</param>
+        /// <param name="target">Target wallet address</param>
+        /// <param name="reward">Custom reward amount</param>
+        /// <param name="typeFromPath">Determine content-type by file extension</param>
+        /// <param name="contentType">Custom content type value</param>
+        /// <returns>Transaction object</returns>
+        public static Transaction CreateW2WTransactionWithData(string dataPath,
+                                                          string keyFilePath,
                                                           string quantity,
                                                           string target,
                                                           string reward="",
