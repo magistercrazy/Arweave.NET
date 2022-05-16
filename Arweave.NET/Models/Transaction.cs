@@ -95,7 +95,6 @@ namespace Arweave.NET.Models
         public static Transaction CreateDataTransaction(string dataPath, string keyFilePath, string reward="", bool typeFromPath = true, string contentType = null)
         {
             var transaction = new Transaction(keyFilePath);
-            var transactionService = new TransactionService();
             var dataBuff = Utils.ReadDataAsync(dataPath).Result;
 
             if (typeFromPath)
@@ -110,14 +109,29 @@ namespace Arweave.NET.Models
                 transaction.AddTag("Content-Type", contentType);
             }
 
-            transaction.Quantity = "0";
-            transaction.Target = "";
-            transaction.Data = Utils.Base64Encode(dataBuff);
-            transaction.DataSize = dataBuff.Length.ToString();
-            transaction.DataRoot = Utils.Base64Encode(ChunkOperations.GenerateTransactionChunks(dataBuff));
-            transaction.Reward = string.IsNullOrEmpty(reward) ? transactionService.GetPriceAsync(null, dataBuff.LongLength).Result : reward;
-            transaction.LastTx = transactionService.GetAnchorAsync().Result;
+            DataTransaction(transaction, dataBuff, reward);
+            SignData(transaction);
+            return transaction;
+        }
 
+        /// <summary>
+        /// Constructs a transaction for simple file upload
+        /// </summary>
+        /// <param name="data">Data to upload</param>
+        /// <param name="keyFilePath">Path to the wallet private key .json file (exported from Arweave wallet)</param>
+        /// <param name="reward">Custom reward amount</param>
+        /// <param name="fileFormat">Data format in mimeType/extension</param>
+        /// <returns>Transaction object</returns>
+        public static Transaction CreateDataTransaction(Stream data, string fileFormat, string keyFilePath, string reward = "")
+        {
+            var transaction = new Transaction(keyFilePath);
+
+            MemoryStream ms = new();
+            data.CopyTo(ms);
+            var dataBuff = ms.GetBuffer();
+
+            transaction.AddTag("Content-Type", fileFormat);
+            DataTransaction(transaction, dataBuff, reward);
             SignData(transaction);
             return transaction;
         }
@@ -167,7 +181,6 @@ namespace Arweave.NET.Models
                                                           string contentType = null)
         {
             var transaction = new Transaction(keyFilePath);
-            var transactionService = new TransactionService();
             var dataBuff = Utils.ReadDataAsync(dataPath).Result;
 
             if (typeFromPath)
@@ -182,14 +195,27 @@ namespace Arweave.NET.Models
                 transaction.AddTag("Content-Type", contentType);
             }
 
-            transaction.Quantity = quantity;
-            transaction.Target = target;
-            transaction.Data = Utils.Base64Encode(dataBuff);
-            transaction.DataSize = dataBuff.Length.ToString();
-            transaction.DataRoot = Utils.Base64Encode(ChunkOperations.GenerateTransactionChunks(dataBuff));
-            transaction.Reward = string.IsNullOrEmpty(reward) ? transactionService.GetPriceAsync(target, dataBuff.LongLength).Result : reward;
-            transaction.LastTx = transactionService.GetAnchorAsync().Result;
+            DataTransaction(transaction, dataBuff, reward, quantity, target);
+            SignData(transaction);
+            return transaction;
+        }
 
+
+        public static Transaction CreateW2WTransactionWithData(Stream data,
+                                                          string fileFormat,
+                                                          string keyFilePath,
+                                                          string quantity,
+                                                          string target,
+                                                          string reward = "")
+        {
+            var transaction = new Transaction(keyFilePath);
+
+            MemoryStream ms = new();
+            data.CopyTo(ms);
+            var dataBuff = ms.GetBuffer();
+
+            transaction.AddTag("Content-Type", fileFormat);
+            DataTransaction(transaction, dataBuff, reward, quantity, target);
             SignData(transaction);
             return transaction;
         }
@@ -200,6 +226,19 @@ namespace Arweave.NET.Models
             var calcSign = SignatureOperations.Sign(dataToSign, transaction.JWK);
             transaction.Signature = Utils.Base64Encode(calcSign);
             transaction.Id = Utils.Base64Encode(Encryption.Hash(calcSign, "SHA-256"));
+        }
+
+        private static void DataTransaction(Transaction transaction, byte[] data, string reward = "", string quantity = "0", string target = "")
+        {
+            var transactionService = new TransactionService();
+
+            transaction.Quantity = quantity;
+            transaction.Target = target;
+            transaction.Data = Utils.Base64Encode(data);
+            transaction.DataSize = data.Length.ToString();
+            transaction.DataRoot = Utils.Base64Encode(ChunkOperations.GenerateTransactionChunks(data));
+            transaction.Reward = string.IsNullOrEmpty(reward) ? transactionService.GetPriceAsync(null, data.LongLength).Result : reward;
+            transaction.LastTx = transactionService.GetAnchorAsync().Result;
         }
 
     }
