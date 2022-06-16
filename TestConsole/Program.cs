@@ -18,7 +18,9 @@ namespace TestConsole
             //var res = transactionService.GetFieldAsync("BNttzDav3jHVnNiV7nYbQv-GY0HQ-4XXsdkE5K9ylHQ", "signature").Result;
             //var res = transactionService.GetAnchorAsync().Result;
             //var res = transactionService.GetStringDataAsync("BNttzDav3jHVnNiV7nYbQv-GY0HQ-4XXsdkE5K9ylHQ").Result;
-            //var res = transactionService.GetStringDataByExtensionAsync("BNttzDav3jHVnNiV7nYbQv-GY0HQ-4XXsdkE5K9ylHQ","html").Result;
+            //var res = transactionService.GetStringDataByExtensionAsync("BNttzDav3jHVnNiV7nYbQv-GY0HQ-4XXsdkE5K9ylHQ","mp4").Result;
+            var res = transactionService.GetByteDataAsync("cveYIo6vS7QHhRIRU69UDieGijaLsIcrUeMvtWntkDE").Result;
+            File.WriteAllBytes("d:\\vid.mp4",res);
             //var res = transactionService.GetPriceAsync("JLZKhihKvyCR7If7kUhLSAN_DmRsZYD_cH3MYXHn9gM", 0).Result;
             //if (res != null)
             //{
@@ -31,27 +33,27 @@ namespace TestConsole
             //}
 
           
-            var dataTransaction = Transaction.CreateDataTransaction(@"C:\Users\semen\Downloads\shib.png",
-                                                                @"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json");
+            //var dataTransaction = Transaction.CreateDataTransaction(@"C:\Users\jalki\Desktop\15run.png",
+             //                                                   @"c:\Users\jalki\Downloads\arweave-key-_qFahhVhFbibbOnnvMgfXAkCltiBLPRth2BeiB4Ta78.json");
 
-            var W2WTransaction = Transaction.CreateW2WTransaction(@"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json",
-                                                               "10000000",
-                                                               "pEbU_SLfRzEseum0_hMB1Ie-hqvpeHWypRhZiPoioDI");
+            //var W2WTransaction = Transaction.CreateW2WTransaction(@"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json",
+            //                                                   "10000000",
+            //                                                   "pEbU_SLfRzEseum0_hMB1Ie-hqvpeHWypRhZiPoioDI");
 
-            var W2WDataTransaction = Transaction.CreateW2WTransactionWithData(@"C:\Users\semen\Downloads\shib.png",
-                                                                  @"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json",
-                                                                 "10000000",
-                                                                 "pEbU_SLfRzEseum0_hMB1Ie-hqvpeHWypRhZiPoioDI");
+            //var W2WDataTransaction = Transaction.CreateW2WTransactionWithData(@"C:\Users\semen\Downloads\shib.png",
+            //                                                      @"C:\Users\semen\Downloads\HP32h0fNTv6VXLIM2fRIGF0h1VESfV4Tc0GVUXMxiNQ.json",
+            //                                                     "10000000",
+            //                                                     "pEbU_SLfRzEseum0_hMB1Ie-hqvpeHWypRhZiPoioDI");
 
-            var result = transactionService.SubmitTransaction(dataTransaction).Result;
-            if(result.Error == null)
-            {
-                Console.WriteLine(result.Id);
-            }
-            else
-            {
-                Console.WriteLine(result.Error.Message);
-            }
+            //var result = transactionService.SubmitTransaction(dataTransaction).Result;
+            //if(result.Error == null)
+            //{
+            //    Console.WriteLine(result.Id);
+            //}
+            //else
+            //{
+            //    Console.WriteLine(result.Error.Message);
+            //}
             Console.ReadKey();
         }
     }

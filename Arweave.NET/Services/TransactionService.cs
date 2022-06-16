@@ -130,7 +130,7 @@ namespace Arweave.NET.Services
         /// <returns>Data buffer</returns>
         public async Task<byte[]> GetByteDataAsync(string id)
         {
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"tx/{id}");
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"tx/{id}/data");
             var response = await Client.Request(requestMessage);
             if (response.StatusCode == HttpStatusCode.OK)
             {
